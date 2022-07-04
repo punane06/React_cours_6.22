@@ -23,7 +23,7 @@ function Poed() {
       {["Mart Poom", "Aavo Pärt", "Kertu Jukkum"]
         .sort((a, b) => b - a)
         .map((e) => (
-          <div>
+          <div key={e}>
             <div>Liikme nimi: {e}</div>
             <div>Valdkond: Turundus</div>
             <div>Asukoht: Peakntor</div>

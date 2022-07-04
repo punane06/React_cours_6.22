@@ -7,10 +7,14 @@ import { useRef, useState } from "react";
 
 function TooteLisamine() {
   const nimiRef = useRef();
+  const priceRef = useRef();
+  const isActiveRef = useRef();
   //   vasak pool - HTML ja ta saab väärtuse esialgu useState(-->SIIT<--)
   // parem pool - JavaScriptis, funktsioon mis annab UUE VÄÄRTUSE
   // maarasonum(-->SIIT<--)
   const [sonum, maarasonum] = useState("");
+  const dbUrl =
+    "https://react-june-default-rtdb.europe-west1.firebasedatabase.app/tooted.json";
 
   const lisaToode = () => {
     console.log("Funktsioon tootab");
@@ -19,12 +23,24 @@ function TooteLisamine() {
       maarasonum("Ei olnud toode valitud");
     } else {
       maarasonum("Lisatud edukalt toode " + nimiRef.current.value);
-      let tootedLocalStorage = localStorage.getItem("toodeteVoti");
-      tootedLocalStorage = JSON.parse(tootedLocalStorage) || [];
-      tootedLocalStorage.push(nimiRef.current.value);
-      tootedLocalStorage = JSON.stringify(tootedLocalStorage);
-      //   määrates on vaja võtit ja vääertust
-      localStorage.setItem("toodeteVoti", tootedLocalStorage);
+      // let tootedLocalStorage = localStorage.getItem("toodeteVoti");
+      // tootedLocalStorage = JSON.parse(tootedLocalStorage) || [];
+      const uusToode = {
+        nimi: nimiRef.current.value,
+        hind: priceRef.current.value,
+        aktiivne: isActiveRef.current.checked,
+      };
+      fetch(dbUrl, {
+        method: "POST",
+        body: JSON.stringify(uusToode),
+        header: {
+          "Content-Type": "application/json",
+        },
+      });
+      // tootedLocalStorage.push(uusToode);
+      // tootedLocalStorage = JSON.stringify(tootedLocalStorage);
+      // määrates on vaja võtit ja vääertust
+      // localStorage.setItem("toodeteVoti", tootedLocalStorage);
     }
   };
 
@@ -34,6 +50,14 @@ function TooteLisamine() {
       <label>Toote nimetus</label>
       <br />
       <input ref={nimiRef} type="text" />
+      <br />
+      <label>Toote hind</label>
+      <br />
+      <input ref={priceRef} type="number" />
+      <br />
+      <label>Toote aktiivne</label>
+      <br />
+      <input ref={isActiveRef} type="checkbox" />
       <br />
       <button onClick={lisaToode}>Sisesta</button>
       <div>{sonum}</div>
