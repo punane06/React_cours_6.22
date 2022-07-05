@@ -10,3 +10,7 @@
 .product-image {
   width: 200px;
 }
+.active-category {
+  font-weight: bold;
+  text-decoration: underline;
+}

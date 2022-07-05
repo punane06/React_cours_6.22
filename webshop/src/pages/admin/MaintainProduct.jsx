@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 // import { useTranslation } from "react-i18next";
 
 function MaintainProduct() {
   const [products, setProducts] = useState([]);
   //   const { t } = useTranslation();
-
+  const searchedProductRef = useRef();
+  const [originalProducts, setOriginalProducts] = useState([]);
   const productDb =
     "https://react-june-webshop-default-rtdb.europe-west1.firebasedatabase.app/products.json";
 
@@ -17,6 +18,7 @@ function MaintainProduct() {
           newArray.push(data[key]);
         }
         setProducts(newArray);
+        setOriginalProducts(newArray);
       });
   }, []);
 
@@ -41,15 +43,29 @@ function MaintainProduct() {
   // .filter(element => Element.name.indexOf(otsimiseRef.current.value) >= 0)
   // }
 
+  const searchProducts = () => {
+    // console.log(searchedProductRef.current.value);
+    const searchInput = searchedProductRef.current.value.toLowerCase();
+    const newProducts = originalProducts.filter(
+      (e) =>
+        e.name.toLowerCase().indexOf(searchInput) >= 0 ||
+        e.id.toString().indexOf(searchInput) >= 0 ||
+        e.description.toString().indexOf(searchInput) >= 0
+    );
+    setProducts(newProducts);
+  };
+
   return (
     // input ref=otsimiseRef onChange={otsi} [samsung]
     <div>
+      <input type="text" ref={searchedProductRef} onChange={searchProducts} />
       {products.map((e, index) => (
         <div key={e.id + index}>
           <img className="product-image" src={e.imgSrc} alt="" />
           <div>{e.imgSrc}</div>
           <div>{e.name}</div>
           <div>{e.price}</div>
+          <div>{e.description}</div>
           <div>{e.id}</div>
           <button>Muuda - KODUS</button>
           <button onClick={() => deleteProduct(index)}>Kusutua toode</button>

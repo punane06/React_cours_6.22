@@ -1,10 +1,15 @@
+import { useRef } from "react";
+import { useEffect } from "react";
 import { useState } from "react";
 
 function Cart() {
+  const test = JSON.parse(sessionStorage.getItem("cart"));
+  console.log(test);
   const [cartProducts, setCartProducts] = useState(
-    JSON.parse(sessionStorage.getItem("cart") || [])
+    JSON.parse(sessionStorage.getItem("cart")) || []
   );
 
+  console.log(cartProducts);
   const decreaseFromCart = (productIndex) => {
     cartProducts[productIndex].quantity--;
     if (cartProducts[productIndex].quantity === 0) {
@@ -64,6 +69,43 @@ function Cart() {
       .then((sisu) => (window.location.href = sisu.payment_link));
   };
 
+  const [parcelMachines, setParcelMachines] = useState([]);
+  const [selectedPM, setSelectedPM] = useState(
+    sessionStorage.getItem("parcelMachine")
+  );
+  const parcelMachineRef = useRef();
+
+  useEffect(() => {
+    fetch("https://www.omniva.ee/locations.json")
+      .then((res) => res.json())
+      .then((data) => setParcelMachines(data));
+  }, []);
+
+  const selectParcelMachine = () => {
+    setSelectedPM(parcelMachineRef.current.value);
+    sessionStorage.setItem("parcelMachine", parcelMachineRef.current.value);
+    const newParcelMachine = {
+      product: {
+        id: 10011222,
+        name: "Pakiautomaadi tasu",
+        price: 3.5,
+        imgSrc: require("../assets/locker.png"),
+      },
+      quantity: 1,
+    };
+    cartProducts.push(newParcelMachine);
+    setCartProducts(cartProducts.slice());
+    sessionStorage.setItem("cart", JSON.stringify(cartProducts));
+  };
+
+  const deletedSelectedPM = () => {
+    setSelectedPM(null);
+    sessionStorage.removeItem("parcelMachine");
+    cartProducts.pop();
+    setCartProducts(cartProducts.slice());
+    sessionStorage.setItem("cart", JSON.stringify(cartProducts));
+  };
+
   return (
     <div>
       {cartProducts.length === 0 && (
@@ -80,13 +122,43 @@ function Cart() {
         <div>
           <img src={e.product.imgSrc} alt="" />
           <div>{e.product.price}</div>
-          <button onClick={() => decreaseFromCart(index)}>-</button>
+          <button
+            disabled={e.product.id === 10011222}
+            onClick={() => decreaseFromCart(index)}
+          >
+            -
+          </button>
           <div>{e.quantity}</div>
-          <button onClick={() => increaseFromCart(index)}>+</button>
+          <button
+            disabled={e.product.id === 10011222}
+            onClick={() => increaseFromCart(index)}
+          >
+            +
+          </button>
           <div>{e.product.price * e.quantity}</div>
-          <button onClick={() => removeFromCart(index)}>x</button>
+          <button
+            disabled={e.product.id === 10011222}
+            onClick={() => removeFromCart(index)}
+          >
+            x
+          </button>
         </div>
       ))}
+      {selectedPM === null && cartProducts.length > 0 && (
+        <select ref={parcelMachineRef} onChange={selectParcelMachine}>
+          {parcelMachines
+            .filter((e) => e.A0_NAME === "EE")
+            .map((e) => (
+              <option>{e.NAME}</option>
+            ))}
+        </select>
+      )}
+      {selectedPM !== null && (
+        <span>
+          Valitud pakiautomaat: {selectedPM}{" "}
+          <button onClick={deletedSelectedPM}>x</button>
+        </span>
+      )}
       <div>{calcTotalPayment()}€</div>
       <button onClick={() => toPay()}>Maksma</button>
     </div>

@@ -106,11 +106,17 @@ function AddProduct() {
         // console.log("ei ole unikaalne");
         setMessage("ID on mitteuinikaalne");
         setButtonDisabled(true);
+      } else if (idRef.current.value === "10011222") {
+        setMessage("Added parcel machine ID");
+        setButtonDisabled(false);
       } else {
         // console.log("On  unikaalne");
         setMessage("");
         setButtonDisabled(false);
       }
+    } else {
+      setMessage("");
+      setButtonDisabled(true);
     }
   };
 
