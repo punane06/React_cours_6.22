@@ -1,14 +1,20 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import SortButtons from "./components/SortButtons";
+import Pagination from "react-bootstrap/Pagination";
+import Product from "./components/Product";
+import FilterBar from "./components/FilterBar";
 
 // ffc
 function Home() {
   const [products, setProducts] = useState([]);
   const [originalProducts, setOriginalProducts] = useState([]);
-  const { t } = useTranslation();
   const [categories, setCategories] = useState([]);
+
+  const [activePage, setActivePage] = useState(1);
+  const [pages, setPages] = useState([]);
+  const [selectedCatergory, setSelectedCategory] = useState("all");
+  const [filteredProducts, setFilteredProducts] = useState([]);
 
   const productDb =
     "https://react-june-webshop-default-rtdb.europe-west1.firebasedatabase.app/products.json";
@@ -16,48 +22,40 @@ function Home() {
   useEffect(() => {
     fetch(productDb)
       .then((res) => res.json())
-      .then((data) => {
-        const productArray = [];
-        let categoryArray = [];
-        for (const key in data) {
-          productArray.push(data[key]);
-          categoryArray.push(data[key].category);
-        }
-        categoryArray = [...new Set(categoryArray)];
-        setCategories(categoryArray);
-        setProducts(productArray);
-        setOriginalProducts(productArray);
+      .then((body) => {
+        updateData(body);
       });
   }, []);
 
-  const addToCart = (productClicked) => {
-    const cartProducts = JSON.parse(sessionStorage.getItem("cart")) || [];
-    const index = cartProducts.findIndex(
-      (e) => e.product.id === productClicked.id
-    );
-    if (index >= 0) {
-      // Koik need kolm varianti tapselt identsed
-      //   cartProducts[index].quantity = cartProducts[index].quantity + 1;
-      //   cartProducts[index].quantity ++;
-      cartProducts[index].quantity += 1;
-    } else {
-      const index = cartProducts.findIndex(
-        (element) => element.product.id === 11122333
-      );
-      if (index >= 0) {
-        cartProducts.splice(cartProducts.length - 1, 0, {
-          product: productClicked,
-          quantity: 1,
-        });
-      } else {
-        cartProducts.push({ product: productClicked, quantity: 1 });
+  const updateData = (firebaseProduct) => {
+    const productArray = [];
+    let categoryArray = [];
+    const pagesArray = [];
+    let i = 0;
+    for (const key in firebaseProduct) {
+      const product = firebaseProduct[key];
+      if (product.isActive) {
+        productArray.push(product);
+        categoryArray.push(product.category);
+        if (i % 10 === 0) {
+          // 0 ---> 1
+          // 10 ---> 2
+          // 20 ---> 3
+          // 30 ---> 4
+          pagesArray.push(i / 10 + 1);
+        }
+        i++;
       }
     }
-    sessionStorage.setItem("cart", JSON.stringify(cartProducts));
-    toast.success(t("home.cart-added"), {
-      position: "bottom-right",
-      theme: "dark",
-    });
+    categoryArray = [...new Set(categoryArray)];
+    setCategories(categoryArray);
+    setProducts(productArray.slice(0, 10));
+    setFilteredProducts(productArray);
+    setOriginalProducts(productArray);
+    // for (let number = 1; number <= 5; number++) {
+    //   pagesArray.push(number);
+    // }
+    setPages(pagesArray);
   };
 
   // const sortAZ = () => {
@@ -80,51 +78,56 @@ function Home() {
   // props
   // <ChildClass VOTI1={muutuja} VOTI2={muutuja} /> - muutuja v]i funktsioon
 
-  const [selectedCatergory, setSelectedCategory] = useState("all");
+  const changePage = (number) => {
+    setActivePage(number);
+    //1 0,10
+    //2 10, 20
+    //3 20, 30 number*10-10, number*10
+    // setProducts(originalProducts.slice(number * 10 - 10, number * 10));
 
-  const filterProducts = (categoryClicked) => {
-    if (categoryClicked === "all") {
-      setProducts(originalProducts);
-      setSelectedCategory("all");
+    if (selectedCatergory === "all") {
+      setProducts(originalProducts.slice(number * 10 - 10, number * 10));
     } else {
       const newProducts = originalProducts.filter(
-        (e) => e.category === categoryClicked
+        (e) => e.category === selectedCatergory
       );
-      setProducts(newProducts);
-      setSelectedCategory(categoryClicked);
+      setProducts(newProducts.slice(number * 10 - 10, number * 10));
     }
+    setActivePage(1);
   };
 
   return (
     <div>
-      <div
-        className={selectedCatergory === "all" ? "active-category" : undefined}
-        onClick={() => filterProducts("all")}
-      >
-        Kõik kategooriad
-      </div>
-      {categories.map((e) => (
-        <div
-          className={selectedCatergory === e ? "active-category" : undefined}
-          key={e}
-          onClick={() => filterProducts(e)}
-        >
-          {e}
-        </div>
-      ))}
+      <div>Kokku {filteredProducts.length} toodet</div>
+      {categories.length > 1 && (
+        <FilterBar
+          originalProducts={originalProducts}
+          categories={categories}
+          selectedCatergory={selectedCatergory}
+          setActivePage={setActivePage}
+          setPages={setPages}
+          setFilteredProducts={setFilteredProducts}
+          setProducts={setProducts}
+          setSelectedCategory={setSelectedCategory}
+        />
+      )}
       <SortButtons products={products} updateProducts={setProducts} />
       {products.map((e, index) => (
-        <div key={e.id + index}>
-          <img src={e.imgSrc} alt="" />
-          <div>{e.imgSrc}</div>
-          <div>{e.name}</div>
-          <div>{e.price}</div>
-          <div>{e.id}</div>
-          <button onClick={() => addToCart(e)}>
-            {t("home.add-cart-button")}
-          </button>
-        </div>
+        <Product e={e} index={index} />
       ))}
+      {pages.leng > 1 && (
+        <Pagination>
+          {pages.map((number) => (
+            <Pagination.Item
+              onClick={() => changePage(number)}
+              key={number}
+              active={number === activePage}
+            >
+              {number}
+            </Pagination.Item>
+          ))}
+        </Pagination>
+      )}
       <ToastContainer />
     </div>
   );

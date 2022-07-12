@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import EditProduct from "../components/EditProduct";
+import styles from "../../css/Cart.module.css";
 // import { useTranslation } from "react-i18next";
 
 function MaintainProduct() {
@@ -57,25 +58,47 @@ function MaintainProduct() {
     setProducts(newProducts);
   };
 
+  const changeProductActive = (productClicked) => {
+    const index = originalProducts.findIndex((e) => e.id === productClicked.id);
+    productClicked.isActive = !productClicked.isActive;
+    originalProducts[index] = productClicked;
+    setProducts(products.slice());
+    fetch(productDb, {
+      method: "PUT",
+      body: JSON.stringify(products),
+      header: {
+        "Content-Type": "application/json",
+      },
+    });
+  };
+
   return (
     // input ref=otsimiseRef onChange={otsi} [samsung]
     <div>
       <input type="text" ref={searchedProductRef} onChange={searchProducts} />
+      <span>{products.length} tk</span>
       {products.map((e, index) => (
-        <div key={e.id + index}>
-          <img className="product-image" src={e.imgSrc} alt="" />
-          <div>{e.imgSrc}</div>
-          <div>{e.name}</div>
-          <div>{e.price}</div>
-          <div>{e.description}</div>
-          <div>{e.id}</div>
-          <Link to={`/admin/muuda/${e.id}`}>
-            <button>
-              Muuda
-              <EditProduct />
-            </button>
-          </Link>
-          <button onClick={() => deleteProduct(index)}>Kusutua toode</button>
+        <div
+          className={
+            styles.cartProduct + " " + (e.isActive ? "active" : "inactive")
+          }
+          key={e.id + index}
+        >
+          <div onClick={() => changeProductActive(e)}>
+            <img className="product-image" src={e.imgSrc} alt="" />
+            <div>{e.imgSrc}</div>
+            <div>{e.name}</div>
+            <div>{e.price}</div>
+            <div>{e.description}</div>
+            <div>{e.id}</div>
+            <Link to={`/admin/muuda/${e.id}`}>
+              <button>
+                Muuda
+                <EditProduct />
+              </button>
+            </Link>
+            <button onClick={() => deleteProduct(index)}>Kusutua toode</button>
+          </div>
         </div>
       ))}
     </div>
