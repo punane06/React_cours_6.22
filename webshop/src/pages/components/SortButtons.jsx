@@ -1,3 +1,4 @@
+import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 function SortButtons(props) {
@@ -22,10 +23,18 @@ function SortButtons(props) {
 
   return (
     <div>
-      <button onClick={sortAZ}>{t("home.sortaz")}</button>
-      <button onClick={sortZA}>{t("home.sortaz")}</button>
-      <button onClick={sortPriceAsc}>{t("home.sort-price-asc")}</button>
-      <button onClick={sortPriceDesc}>{t("home.sort-price-desc")}</button>
+      <Button variant="secondary" onClick={sortAZ}>
+        {t("home.sortaz")}
+      </Button>
+      <Button variant="secondary" onClick={sortZA}>
+        {t("home.sortaz")}
+      </Button>
+      <Button variant="secondary" onClick={sortPriceAsc}>
+        {t("home.sort-price-asc")}
+      </Button>
+      <Button variant="secondary" onClick={sortPriceDesc}>
+        {t("home.sort-price-desc")}
+      </Button>
     </div>
   );
 }

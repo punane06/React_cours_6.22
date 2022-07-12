@@ -11,6 +11,7 @@ import Item from "./pages/Item";
 import Shops from "./pages/Shops";
 import NavigationBar from "./pages/admin/NavigationBar";
 import MaintainProduct from "./pages/admin/MaintainProduct";
+import EditProduct from "./pages/components/EditProduct";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           }
         ></Route>
         <Route path="admin/kategooriad" exact element={<Category />}></Route>
+        <Route path="admin/muuda/:id" exact element={<EditProduct />}></Route>
         <Route path="admin/tooted" exact element={<MaintainProduct />}></Route>
         <Route
           path="muuda-toode"

@@ -1,6 +1,9 @@
+import { Button } from "react-bootstrap";
 import { useRef } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
+import styles from "../css/Cart.module.css";
+import { toast, ToastContainer } from "react-toastify";
 
 function Cart() {
   const test = JSON.parse(sessionStorage.getItem("cart"));
@@ -11,8 +14,12 @@ function Cart() {
 
   console.log(cartProducts);
   const decreaseFromCart = (productIndex) => {
-    cartProducts[productIndex].quantity--;
-    if (cartProducts[productIndex].quantity === 0) {
+    const productClicked = cartProducts[productIndex];
+    if (productClicked.produt.id === "10011222") {
+      return;
+    }
+    productClicked[productIndex].quantity--;
+    if (productClicked[productIndex].quantity === 0) {
       removeFromCart(productIndex);
     } else {
       setCartProducts(cartProducts.slice());
@@ -22,11 +29,19 @@ function Cart() {
     sessionStorage.setItem("cart", JSON.stringify(cartProducts));
   };
   const increaseFromCart = (productIndex) => {
+    const productClicked = cartProducts[productIndex];
+    if (productClicked.produt.id === "10011222") {
+      return;
+    }
     cartProducts[productIndex].quantity++;
     setCartProducts(cartProducts.slice());
     sessionStorage.setItem("cart", JSON.stringify(cartProducts));
   };
   const removeFromCart = (productIndex) => {
+    const productClicked = cartProducts[productIndex];
+    if (productClicked.produt.id === "10011222") {
+      return;
+    }
     cartProducts.splice(productIndex, 1);
     setCartProducts(cartProducts.slice());
     sessionStorage.setItem("cart", JSON.stringify(cartProducts));
@@ -34,6 +49,9 @@ function Cart() {
   const removeAllItems = () => {
     setCartProducts([]);
     sessionStorage.setItem("cart", JSON.stringify([]));
+    toast.success("Edukalt kõik ostukorvist kustutatud!", {
+      theme: "colored",
+    });
   };
   const calcTotalPayment = () => {
     let shoppingCart = 0;
@@ -107,41 +125,62 @@ function Cart() {
   };
 
   return (
-    <div>
-      {cartProducts.length === 0 && (
-        <img
-          src="https://www.valeorx.com/static/media/empty-cart.60e68bfd.png"
-          alt=""
-        />
-      )}
-      <button onClick={() => removeAllItems(cartProducts)}>
+    <div className={styles.cart}>
+      <ToastContainer toastStyle={{ backgroundColor: "#34d186" }} />
+      <Button
+        className={styles.ferrariButton}
+        variant="danger"
+        onClick={() => removeAllItems(cartProducts)}
+      >
         Tühjenda ostukorv
-      </button>
+      </Button>
       <br />
       {cartProducts.map((e, index) => (
-        <div>
-          <img src={e.product.imgSrc} alt="" />
-          <div>{e.product.price}</div>
-          <button
-            disabled={e.product.id === 10011222}
-            onClick={() => decreaseFromCart(index)}
-          >
-            -
-          </button>
-          <div>{e.quantity}</div>
-          <button
-            disabled={e.product.id === 10011222}
-            onClick={() => increaseFromCart(index)}
-          >
-            +
-          </button>
-          <div>{e.product.price * e.quantity}</div>
-          <button
+        <div className={styles.cartProduct}>
+          <img className={styles.productImg} src={e.product.imgSrc} alt="" />
+          <div className={styles.productName}>{e.product.name}</div>
+          <div className={styles.productPrice}>
+            {Number(e.product.price).toFixed(2)} €
+          </div>
+          <div className={styles.quantityControls}>
+            <img
+              className={
+                styles.productButton +
+                "" +
+                (e.product.id === 10011222 ? styles.disabled : undefined)
+              }
+              src={require("../assets/minus.png")}
+              alt="minus"
+              disabled={e.product.id === 10011222}
+              onClick={() => decreaseFromCart(index)}
+            ></img>
+            <div>{e.quantity} tk</div>
+            <img
+              className={
+                styles.productButton +
+                " " +
+                (e.product.id === 10011222 ? styles.disabled : undefined)
+              }
+              src={require("../assets/plus.png")}
+              alt="plus"
+              disabled={e.product.id === 10011222}
+              onClick={() => increaseFromCart(index)}
+            ></img>
+          </div>
+          <div className={styles.totalSum}>
+            {(e.product.price * e.quantity).toFixed(2)} €
+          </div>
+          <img
+            className={
+              styles.productButton +
+              " " +
+              (e.product.id === 10011222 ? styles.disabled : undefined)
+            }
+            src={require("../assets/delete.png")}
+            alt="delete"
             disabled={e.product.id === 10011222}
             onClick={() => removeFromCart(index)}
-          >
-            x
-          </button>
+          ></img>
         </div>
       ))}
       {selectedPM === null && cartProducts.length > 0 && (
@@ -161,6 +200,12 @@ function Cart() {
       )}
       <div>{calcTotalPayment()}€</div>
       <button onClick={() => toPay()}>Maksma</button>
+      {cartProducts.length === 0 && (
+        <img
+          src="https://www.valeorx.com/static/media/empty-cart.60e68bfd.png"
+          alt=""
+        />
+      )}
     </div>
   );
 }
