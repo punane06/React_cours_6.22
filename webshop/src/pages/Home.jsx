@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
-import SortButtons from "./components/SortButtons";
 import Pagination from "react-bootstrap/Pagination";
-import Product from "./components/Product";
-import FilterBar from "./components/FilterBar";
+import SortButtons from "./components/SortButtons";
+import Product from "./components/home/Product";
+import FilterBar from "./components/home/FilterBar";
+import CarouselGallery from "./components/home/CarouselGallery";
+import Spinner from "./components/home/Spinner";
 
 // ffc
 function Home() {
@@ -15,15 +17,18 @@ function Home() {
   const [pages, setPages] = useState([]);
   const [selectedCatergory, setSelectedCategory] = useState("all");
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [isLoading, setLoading] = useState(true);
 
   const productDb =
     "https://react-june-webshop-default-rtdb.europe-west1.firebasedatabase.app/products.json";
   //   uef
   useEffect(() => {
+    // setLoading(true);
     fetch(productDb)
       .then((res) => res.json())
       .then((body) => {
         updateData(body);
+        setLoading(false);
       });
   }, []);
 
@@ -98,6 +103,8 @@ function Home() {
 
   return (
     <div>
+      <CarouselGallery />
+      {isLoading && <Spinner />}
       <div>Kokku {filteredProducts.length} toodet</div>
       {categories.length > 1 && (
         <FilterBar

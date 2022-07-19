@@ -80,7 +80,9 @@ function MaintainProduct() {
       {products.map((e, index) => (
         <div
           className={
-            styles.cartProduct + " " + (e.isActive ? "active" : "inactive")
+            styles.cartProduct +
+            " " +
+            (e.isActive ? "active-product" : "inactive-product")
           }
           key={e.id + index}
         >

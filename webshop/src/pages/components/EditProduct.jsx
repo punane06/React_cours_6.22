@@ -54,7 +54,7 @@ function EditProduct() {
     if (nameRef.current.value === "") {
       setMessage("No selected product");
     } else {
-      setMessage("Successfully added " + nameRef.current.value);
+      // setMessage("Successfully added " + nameRef.current.value);
       const newProduct = {
         id: Number(idRef.current.value),
         name: nameRef.current.value,

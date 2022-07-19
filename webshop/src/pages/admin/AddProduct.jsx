@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import FileUpload from "../components/FileUpload";
 
 function AddProduct() {
   const idRef = useRef();
@@ -18,6 +19,12 @@ function AddProduct() {
   const [products, setProducts] = useState([]);
   const productDbUrl =
     "https://react-june-webshop-default-rtdb.europe-west1.firebasedatabase.app/products.json";
+
+  const [productImg, setProductImg] = useState("");
+
+  const imgUrlRef = useRef();
+  const imgFileRef = useRef();
+  const [showUrlUpload, setShowUrlUpload] = useState(false);
 
   useEffect(() => {
     fetch(categoriesDbUrl)
@@ -72,7 +79,7 @@ function AddProduct() {
         active: isActiveRef.current.checked,
         category: categoryRef.current.value,
         description: descriptionRef.current.value,
-        imgSrc: imgSrcRef.current.value,
+        imgSrc: productImg,
       };
       fetch(productDbUrl, {
         method: "POST",
@@ -80,8 +87,17 @@ function AddProduct() {
         header: {
           "Content-Type": "application/json",
         },
-      });
+      }).then(() => emptyForm());
     }
+  };
+  const emptyForm = () => {
+    idRef.current.value = "";
+    nameRef.current.value = "";
+    priceRef.current.value = "";
+    isActiveRef.current.checked = false;
+    categoryRef.current.value = "";
+    descriptionRef.current.value = "";
+    imgSrcRef.current.value = "";
   };
 
   // kui toode ei ole unukaanle:
@@ -120,6 +136,15 @@ function AddProduct() {
     }
   };
 
+  const radioChecked = () => {
+    if (imgUrlRef.current.checked) {
+      setShowUrlUpload(true);
+    } else {
+      console.log("tootab");
+      setShowUrlUpload(false);
+    }
+  };
+
   return (
     <div>
       <br />
@@ -142,25 +167,58 @@ function AddProduct() {
       <label>Product category</label>
       <br />
       {/* <input ref={categoryRef} type="text" /> */}
-      <select ref={categoryRef}>
-        <option selected disabled>
+      <select ref={categoryRef} defaultValue="">
+        <option value="" disabled>
           Pick category
         </option>
         {categories.map((e) => (
-          <option>{e.name}</option>
+          <option key={e.name}>{e.name}</option>
         ))}
       </select>
       <br />
       <label>Product image</label>
-      <br />
-      <input ref={imgSrcRef} type="text" />
+      {productImg === "" && (
+        <div>
+          {" "}
+          <br />
+          <label htmlFor="">URL</label>
+          <input
+            type="radio"
+            id="url"
+            name="imgSrc"
+            ref={imgUrlRef}
+            onChange={radioChecked}
+          ></input>
+          <label htmlFor="">File</label>
+          <input
+            name="imgSrc"
+            type="radio"
+            id="file"
+            ref={imgFileRef}
+            onChange={radioChecked}
+            defaultChecked
+          ></input>
+          {showUrlUpload === true && <input ref={imgSrcRef} type="text" />}
+          {productImg === "" && showUrlUpload === false && (
+            <FileUpload onSendPictureUrl={setProductImg} />
+          )}
+        </div>
+      )}
+      {productImg !== "" && (
+        <div>
+          <i>Pilt Ülesse laetud</i>
+        </div>
+      )}
       <br />
 
       <label>Product active</label>
       <br />
       <input ref={isActiveRef} type="checkbox" />
       <br />
-      <button disabled={buttonDisabled} onClick={addNewProduct}>
+      <button
+        disabled={buttonDisabled || productImg === ""}
+        onClick={addNewProduct}
+      >
         Add
       </button>
       <div>{message}</div>

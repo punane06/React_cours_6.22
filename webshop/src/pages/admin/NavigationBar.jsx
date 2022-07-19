@@ -29,8 +29,8 @@ function NavigationBar() {
             <Nav.Link as={Link} to="/ostukorv">
               {t("navbar.cart-button")}
             </Nav.Link>
-            <Nav.Link as={Link} to="/ostukorv">
-              {t("Welcome to React")}
+            <Nav.Link as={Link} to="/meist">
+              Meist
             </Nav.Link>
             <img
               className="lang"

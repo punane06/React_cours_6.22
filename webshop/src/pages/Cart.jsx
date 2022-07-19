@@ -11,8 +11,12 @@ function Cart() {
   const [cartProducts, setCartProducts] = useState(
     JSON.parse(sessionStorage.getItem("cart")) || []
   );
+  const [parcelMachines, setParcelMachines] = useState([]);
+  const [selectedPM, setSelectedPM] = useState(
+    sessionStorage.getItem("parcelMachine")
+  );
+  const parcelMachineRef = useRef();
 
-  console.log(cartProducts);
   const decreaseFromCart = (productIndex) => {
     const productClicked = cartProducts[productIndex];
     if (productClicked.produt.id === "10011222") {
@@ -86,12 +90,6 @@ function Cart() {
       .then((tagastus) => tagastus.json())
       .then((sisu) => (window.location.href = sisu.payment_link));
   };
-
-  const [parcelMachines, setParcelMachines] = useState([]);
-  const [selectedPM, setSelectedPM] = useState(
-    sessionStorage.getItem("parcelMachine")
-  );
-  const parcelMachineRef = useRef();
 
   useEffect(() => {
     fetch("https://www.omniva.ee/locations.json")

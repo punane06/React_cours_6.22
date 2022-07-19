@@ -12,6 +12,9 @@ import Shops from "./pages/Shops";
 import NavigationBar from "./pages/admin/NavigationBar";
 import MaintainProduct from "./pages/admin/MaintainProduct";
 import EditProduct from "./pages/components/EditProduct";
+import AboutUs from "./pages/AboutUs";
+import NotFound from "./pages/NotFound";
+import SingleProduct from "./pages/components/SingleProduct";
 
 function App() {
   return (
@@ -41,6 +44,9 @@ function App() {
         <Route path="item/:itemName" exact element={<OneItem />}></Route>
         <Route path="poed" exact element={<Shops />}></Route>
         <Route path="ostukorv" exact element={<Cart />}></Route>
+        <Route path="meist" exact element={<AboutUs />}></Route>
+        <Route path="toode/:id" exact element={<SingleProduct />}></Route>
+        <Route path="*" exact element={<NotFound />}></Route>
       </Routes>
     </div>
   );

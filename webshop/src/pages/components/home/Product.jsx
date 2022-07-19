@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
@@ -36,14 +37,16 @@ function Product(props) {
 
   return (
     <div key={props.e.id + props.index}>
-      <img src={props.e.imgSrc} alt="" />
-      <div>{props.e.imgSrc}</div>
-      <div>{props.e.name}</div>
-      <div>{props.e.price}</div>
-      <div>{props.e.id}</div>
-      <button onClick={() => addToCart(props.e)}>
-        {t("home.add-cart-button")}
-      </button>
+      <Link to={`toode/${props.e.id}`}>
+        <img src={props.e.imgSrc} alt="" />
+        <div>{props.e.imgSrc}</div>
+        <div>{props.e.name}</div>
+        <div>{props.e.price}</div>
+        <div>{props.e.id}</div>
+        <button onClick={() => addToCart(props.e)}>
+          {t("home.add-cart-button")}
+        </button>
+      </Link>
     </div>
   );
 }
