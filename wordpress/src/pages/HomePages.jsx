@@ -8,7 +8,7 @@ function HomePage() {
     if (index >= 0) {
       cart[index].quantity++;
     } else {
-      const newProduct = { product: productClicked, quanttity: 1 };
+      const newProduct = { product: productClicked, quantity: 1 };
       cart.push(newProduct);
     }
     sessionStorage.setItem("cart", JSON.stringify(cart));

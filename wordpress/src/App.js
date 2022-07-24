@@ -4,6 +4,7 @@ import { Link, Route, Routes } from "react-router-dom";
 import { Button } from "react-bootstrap";
 import Cart from "./pages/Cart";
 import HomePage from "./pages/HomePages";
+import PaymentCompleted from "./pages/PaymentCompleted";
 
 function App() {
   // const products = ProductsFromWordpress;
@@ -31,6 +32,15 @@ function App() {
           element={
             <div>
               <Cart />
+            </div>
+          }
+        ></Route>
+        <Route
+          path="tellimus"
+          exact
+          element={
+            <div>
+              <PaymentCompleted />
             </div>
           }
         ></Route>
