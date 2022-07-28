@@ -1,9 +1,17 @@
 import { useState } from "react";
+import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
 
 function Cart() {
   const [cart, setCart] = useState(
     JSON.parse(sessionStorage.getItem("cart")) || []
   );
+
+  const api = new WooCommerceRestApi({
+    url: "http://localhost/wordpress",
+    consumerKey: "ck_e579c4b53ed236a7b40db9da3a3c11cb70b34a26",
+    consumerSecret: "cs_5ab1592ea33add3f6bf53df16b5d66139f112e3f",
+    version: "wc/v3",
+  });
 
   const decreaseQuantity = (productClicked) => {
     const index = cart.findIndex(
@@ -37,11 +45,18 @@ function Cart() {
 
   const sendOrderToWordpress = () => {
     const lineItems = cart.map((e) => {
-      return { id: e.product.id, quantity: e.quantity };
+      return { product_id: e.product.id, quantity: e.quantity };
     });
     // const wordpressProducts = lineItems.map((e) => e);
-    console.log(lineItems);
-    return Math.floor(Math.random() * 899999 + 100000);
+    const orderPromise = api
+      .post("orders", {
+        line_items: lineItems,
+      })
+      .then((res) => {
+        return res.data.id;
+      });
+    orderPromise.then((result) => pay(result));
+    // return Math.floor(Math.random() * 899999 + 100000);
   };
 
   const calculateTotalSum = () => {
@@ -50,8 +65,8 @@ function Cart() {
 
     return cartSum;
   };
-  const pay = () => {
-    const orderId = sendOrderToWordpress();
+  const pay = (orderId) => {
+    // const orderId = sendOrderToWordpress();
     const paymentData = {
       api_username: "92ddcfab96e34a5f",
       account_name: "EUR3D1",
@@ -90,13 +105,13 @@ function Cart() {
           <div>{e.quantity} tk</div>
           <button onClick={() => integrateQuantity(e)}>+</button>
           <div>{e.product.price * e.quantity}</div>
-          {console.log(e.product.price)}
-          {console.log(e.quantity)}
+          {/* {console.log(e.product.price)} */}
+          {/* {console.log(e.quantity)} */}
           <button onClick={() => deleteQuantity(e)}>x</button>
         </div>
       ))}
       <div>Summa kokku: {calculateTotalSum()}</div>
-      <button onClick={() => pay()}>Maksma</button>
+      <button onClick={() => sendOrderToWordpress()}>Maksma</button>
     </div>
   );
 }
